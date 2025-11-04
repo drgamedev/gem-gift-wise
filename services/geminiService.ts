@@ -2,7 +2,29 @@ import { GoogleGenAI, Type } from "@google/genai";
 import type { Gift, SearchParams } from '../types';
 import { GiftWiseError } from '../types';
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// Cache the client instance to avoid re-creating it on every call.
+let ai: GoogleGenAI | null = null;
+
+/**
+ * Lazily initializes and returns the GoogleGenAI client.
+ * This prevents the app from crashing on startup if environment variables are not properly configured.
+ */
+function getAiClient(): GoogleGenAI {
+  if (ai) {
+    return ai;
+  }
+
+  // Safely access the API key to prevent reference errors in environments where `process` is not defined.
+  const apiKey = typeof process !== 'undefined' ? process.env.API_KEY : undefined;
+
+  if (!apiKey) {
+    // This user-friendly error will be caught by the component and displayed in the UI.
+    throw new GiftWiseError("API Key is missing. Please ensure it's configured in your deployment environment variables.");
+  }
+
+  ai = new GoogleGenAI({ apiKey });
+  return ai;
+}
 
 const giftSchema = {
     type: Type.ARRAY,
@@ -48,7 +70,8 @@ Their interests are: ${interests.length > 0 ? interests.join(', ') : "not specif
 The budget is between $${budget[0]} and $${budget[1]}.`;
 
   try {
-    const response = await ai.models.generateContent({
+    const client = getAiClient(); // Get the lazily-initialized client.
+    const response = await client.models.generateContent({
         model: "gemini-2.5-flash",
         contents: userPrompt,
         config: {
@@ -74,6 +97,12 @@ The budget is between $${budget[0]} and $${budget[1]}.`;
     }
 
   } catch (error) {
+    // If it's a known error (like our API key check), re-throw it to be displayed.
+    if (error instanceof GiftWiseError) {
+        throw error;
+    }
+    
+    // For other unexpected API errors.
     console.error("Error calling Gemini API:", error);
     throw new GiftWiseError("The AI is a bit stumped right now. Please try refining your search or try again later.");
   }
