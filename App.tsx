@@ -1,9 +1,9 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import ResultsSection from './components/ResultsSection';
 import Footer from './components/Footer';
+import AuthModal from './components/AuthModal';
 import { findGifts } from './services/geminiService';
 import type { Gift, SearchParams } from './types';
 import { GiftWiseError } from './types';
@@ -13,6 +13,7 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [spotlightStyle, setSpotlightStyle] = useState({});
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const resultsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -51,13 +52,13 @@ export default function App() {
   };
 
   return (
-    <div className="relative min-h-screen bg-black overflow-x-hidden">
+    <div className="relative min-h-screen overflow-x-hidden">
       <div 
         className="pointer-events-none fixed inset-0 z-0 transition-all duration-300" 
         style={spotlightStyle}
       />
       <div className="relative z-10">
-        <Header />
+        <Header onSignInClick={() => setIsAuthModalOpen(true)} />
         <main>
           <Hero onFindGifts={handleFindGifts} isLoading={isLoading} />
           <div ref={resultsRef}>
@@ -66,6 +67,7 @@ export default function App() {
         </main>
         <Footer />
       </div>
+      <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
     </div>
   );
 }

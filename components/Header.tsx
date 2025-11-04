@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import useHeaderScroll from '../hooks/useHeaderScroll';
 
@@ -14,7 +13,11 @@ const MenuIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
 );
 
-export default function Header() {
+interface HeaderProps {
+  onSignInClick: () => void;
+}
+
+export default function Header({ onSignInClick }: HeaderProps) {
   const { isVisible, isScrolled } = useHeaderScroll();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(true);
@@ -32,28 +35,28 @@ export default function Header() {
   const navLinks = ['Home', 'Collections', 'Pricing', 'About'];
 
   return (
-    <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isVisible ? 'translate-y-0' : '-translate-y-full'} ${isScrolled ? 'bg-black/50 backdrop-blur-lg shadow-2xl shadow-brand-cyan/10' : ''}`}>
+    <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isVisible ? 'translate-y-0' : '-translate-y-full'} ${isScrolled ? 'bg-white/80 dark:bg-black/50 backdrop-blur-lg shadow-2xl shadow-brand-cyan/10' : ''}`}>
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           <div className="flex-shrink-0">
-            <a href="#" className="text-2xl font-bold text-brand-white">
+            <a href="#" className="text-2xl font-bold text-brand-navy dark:text-brand-white">
               <span role="img" aria-label="gift">🎁</span> GiftWise
             </a>
           </div>
           <nav className="hidden md:flex md:space-x-8">
             {navLinks.map((link) => (
-              <a key={link} href="#" className="text-brand-white hover:text-brand-cyan transition-colors duration-200">{link}</a>
+              <a key={link} href="#" className="text-brand-navy dark:text-brand-white hover:text-brand-cyan transition-colors duration-200">{link}</a>
             ))}
           </nav>
           <div className="flex items-center space-x-4">
-            <button onClick={toggleTheme} className="p-2 rounded-full text-brand-white hover:text-brand-cyan hover:bg-white/10 transition-all">
+            <button onClick={toggleTheme} className="p-2 rounded-full text-brand-navy dark:text-brand-white hover:text-brand-cyan hover:bg-black/10 dark:hover:bg-white/10 transition-all">
                 {isDarkMode ? <SunIcon/> : <MoonIcon/>}
             </button>
-            <button className="hidden md:block px-4 py-2 text-sm font-medium text-brand-white bg-transparent border border-brand-white rounded-full hover:bg-brand-cyan hover:border-brand-cyan transition-all duration-300">
+            <button onClick={onSignInClick} className="hidden md:block px-4 py-2 text-sm font-medium text-brand-navy dark:text-brand-white bg-transparent border border-brand-navy dark:border-brand-white rounded-full hover:bg-brand-cyan hover:border-brand-cyan hover:text-black transition-all duration-300">
               Sign In
             </button>
             <div className="md:hidden">
-                <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="p-2 rounded-md text-brand-white hover:text-brand-cyan focus:outline-none focus:ring-2 focus:ring-inset focus:ring-brand-cyan">
+                <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="p-2 rounded-md text-brand-navy dark:text-brand-white hover:text-brand-cyan focus:outline-none focus:ring-2 focus:ring-inset focus:ring-brand-cyan">
                     <MenuIcon />
                 </button>
             </div>
@@ -61,12 +64,12 @@ export default function Header() {
         </div>
       </div>
       {isMenuOpen && (
-          <div className="md:hidden bg-black/80 backdrop-blur-lg">
+          <div className="md:hidden bg-white/95 dark:bg-black/80 backdrop-blur-lg">
               <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
                   {navLinks.map(link => (
-                      <a key={link} href="#" className="block px-3 py-2 rounded-md text-base font-medium text-brand-white hover:text-brand-cyan hover:bg-white/10">{link}</a>
+                      <a key={link} href="#" className="block px-3 py-2 rounded-md text-base font-medium text-brand-navy dark:text-brand-white hover:text-brand-cyan hover:bg-black/5 dark:hover:bg-white/10">{link}</a>
                   ))}
-                  <a href="#" className="block px-3 py-2 rounded-md text-base font-medium text-brand-white hover:text-brand-cyan hover:bg-white/10">Sign In</a>
+                  <button onClick={() => { onSignInClick(); setIsMenuOpen(false); }} className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-brand-navy dark:text-brand-white hover:text-brand-cyan hover:bg-black/5 dark:hover:bg-white/10">Sign In</button>
               </div>
           </div>
       )}
